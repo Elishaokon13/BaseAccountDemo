@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * Product Display Component
+ * 
+ * Shows product details and handles direct payment using Base Pay.
+ * This component demonstrates one-tap payments using spend permissions.
+ * No additional wallet interactions are required after spend permissions are set.
+ */
+
 import { useState } from 'react';
 import { Product } from '../types/product';
 import { BasePayButton } from './BasePayButton';
@@ -7,33 +15,45 @@ import { usePayment } from '../contexts/PaymentContext';
 
 interface ProductDisplayProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
+  onAddToCart?: (product: Product) => void; // Kept for compatibility, not used in simplified flow
   onPurchase?: (product: Product) => void;
 }
 
 export function ProductDisplay({ product, onAddToCart, onPurchase }: ProductDisplayProps) {
+  // Local processing state for UI feedback
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Payment context for processing transactions
   const { processPayment, isProcessing: paymentProcessing } = usePayment();
 
+  /**
+   * Handle direct payment using Base Pay and spend permissions
+   * 
+   * This function demonstrates the power of spend permissions:
+   * - No additional wallet signatures required
+   * - Payment is processed automatically using pre-approved permissions
+   * - User gets immediate feedback on success/failure
+   */
   const handleDirectPayment = async () => {
+    // Prevent multiple simultaneous payments
     if (paymentProcessing || isProcessing) return;
     
     setIsProcessing(true);
     try {
-      // Use a placeholder recipient address for the demo
-      // In a real app, this would be your merchant wallet address
+      // Demo recipient address - in production, this would be your merchant wallet
       const recipientAddress = '0x742d35Cc6634C0532925a3b8D0C0E1c4C5f7f8f9';
       
       console.log('🚀 Processing payment for product:', product.name);
       console.log('💰 Amount:', product.price, 'USDC');
       
+      // Process payment using Base Pay (leverages spend permissions)
       const result = await processPayment(product.price, recipientAddress);
       
       if (result.success) {
         console.log('✅ Payment successful!', result);
         alert(`Payment successful! Transaction: ${result.transactionHash}`);
         
-        // Call the onPurchase callback if provided
+        // Notify parent component of successful purchase
         if (onPurchase) {
           onPurchase(product);
         }

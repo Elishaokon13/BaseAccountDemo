@@ -1,5 +1,16 @@
 'use client';
 
+/**
+ * Payment Service
+ * 
+ * Handles payment processing using Base Pay and Base Account SDK.
+ * This service provides:
+ * - USDC payment processing with Base Pay
+ * - Payment status monitoring
+ * - USDC balance queries
+ * - Error handling and logging
+ */
+
 import { pay, getPaymentStatus } from '@base-org/account';
 
 // USDC contract address on Base Mainnet

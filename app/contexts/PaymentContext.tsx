@@ -1,4 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+
+/**
+ * Payment Context
+ * 
+ * Manages payment processing and spend permissions for the Base Account integration.
+ * This context handles:
+ * - Spend permission requests and status checking
+ * - Payment processing using Base Pay
+ * - USDC balance queries
+ * - Payment state management
+ */
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useBaseAccount } from './BaseAccountContext';
@@ -58,15 +70,15 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
         spender: '0x742d35Cc6634C0532925a3b8D0C0E1c4C5f7f8f9', // Your app's spender address
         token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base Mainnet
         chainId: 8453, // Base Mainnet
-        allowance: 20_000_000n, // $20 USDC (6 decimals)
+        allowance: BigInt(20_000_000), // $20 USDC (6 decimals)
         periodInDays: 1, // Daily reset
-        provider: provider,
+        provider: provider as any, // Type assertion for provider compatibility
       });
 
       console.log('✅ Spend permission granted:', permission);
       setHasSpendPermission(true);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to request spend permission:', error);
       return false;
     } finally {
@@ -109,10 +121,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
       const result = await paymentService.processPayment(paymentRequest);
       setLastPaymentResult(result);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorResult: PaymentResult = {
         success: false,
-        error: error.message || 'Payment failed',
+        error: error instanceof Error ? error.message : 'Payment failed',
       };
       setLastPaymentResult(errorResult);
       return errorResult;
@@ -137,7 +149,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
       const wholePart = balance / divisor;
       const fractionalPart = balance % divisor;
       
-      if (fractionalPart === 0n) {
+      if (fractionalPart === BigInt(0)) {
         return wholePart.toString();
       }
       

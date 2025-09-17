@@ -1,4 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+
+/**
+ * Authentication Context
+ * 
+ * Manages user authentication using Base Account SDK.
+ * This context handles:
+ * - User sign-in with Base Account
+ * - Authentication state management
+ * - Session persistence with localStorage
+ * - Sign-out functionality
+ */
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useBaseAccount } from './BaseAccountContext';
@@ -71,7 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.log('Generated nonce:', nonce);
 
       // Request authentication using wallet_connect with signInWithEthereum capability
-      const result = await provider.request({
+      const result = await (provider as unknown as { request: (params: unknown) => Promise<unknown> }).request({
         method: 'wallet_connect',
         params: [{
           version: '1',
@@ -86,8 +98,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       console.log('Authentication result:', result);
 
-      if (result && result.accounts && result.accounts.length > 0) {
-        const account = result.accounts[0];
+      if (result && (result as any).accounts && (result as any).accounts.length > 0) {
+        const account = (result as any).accounts[0];
         const { address } = account;
         const { message, signature } = account.capabilities.signInWithEthereum;
 

@@ -1,5 +1,17 @@
 'use client';
 
+/**
+ * Main E-Commerce Tutorial Page
+ * 
+ * This page demonstrates a complete Base Account integration with:
+ * 1. Authentication using Base Sign-in UI
+ * 2. Spend permissions setup for automated payments
+ * 3. One-tap purchase using Base Pay
+ * 
+ * The flow is designed to be tutorial-friendly with clear step indicators
+ * and educational content for each stage.
+ */
+
 import { Header } from "./components/Header";
 import { useAuth } from "./contexts/AuthContext";
 import { usePayment } from "./contexts/PaymentContext";
@@ -9,30 +21,44 @@ import { useState, useEffect } from "react";
 import { SignInWithBaseButton } from '@base-org/account-ui/react';
 
 export default function Home() {
+  // Authentication state from AuthContext
   const { isAuthenticated, signIn } = useAuth();
+  
+  // Payment and spend permission state from PaymentContext
   const { isPaymentReady, hasSpendPermission, requestSpendPermission, isRequestingPermission } = usePayment();
+  
+  // Current step in the tutorial flow (1: Auth, 2: Permissions, 3: Purchase)
   const [currentStep, setCurrentStep] = useState(1);
 
+  // Get the featured product for the demo
   const product = getFeaturedProduct();
 
+  /**
+   * Determine the current step based on authentication and permission state
+   * This creates a smooth tutorial flow that guides users through each step
+   */
   useEffect(() => {
     if (isAuthenticated && isPaymentReady) {
       if (hasSpendPermission) {
-        setCurrentStep(3); // Ready to purchase
+        setCurrentStep(3); // Ready to purchase - all setup complete
       } else {
         setCurrentStep(2); // Need to set spend permissions
       }
     } else if (isAuthenticated) {
       setCurrentStep(2); // Authenticated but payment not ready
     } else {
-      setCurrentStep(1); // Need to authenticate
+      setCurrentStep(1); // Need to authenticate first
     }
   }, [isAuthenticated, isPaymentReady, hasSpendPermission]);
 
+  /**
+   * Handle spend permission setup
+   * This is a critical step that allows automated payments without additional signatures
+   */
   const handleSetSpendPermissions = async () => {
     const success = await requestSpendPermission();
     if (success) {
-      setCurrentStep(3);
+      setCurrentStep(3); // Move to purchase step
     } else {
       alert('Failed to set spend permissions. Please try again.');
     }

@@ -1,5 +1,16 @@
 'use client';
 
+/**
+ * Base Account Context
+ * 
+ * Initializes and manages the Base Account SDK for the application.
+ * This context provides:
+ * - Base Account SDK instance
+ * - Ethereum provider for blockchain interactions
+ * - Viem wallet client for transaction handling
+ * - Initialization state and error handling
+ */
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { createWalletClient, custom, type WalletClient } from 'viem';
 import { base } from 'viem/chains';
